@@ -6,6 +6,50 @@ class Book {
   }
 }
 
+//Local storage class
+class Store {
+  static getBooks() {
+    let books;
+    if (localStorage.getItem("books") === null) {
+      books = [];
+    } else {
+      books = JSON.parse(localStorage.getItem("books"));
+    }
+    return books;
+  }
+
+  static displayBooks() {
+    const books = Store.getBooks();
+
+    books.forEach(function(book) {
+      const ui = new UI();
+
+      //Add book to UI
+      ui.addBookToList(book);
+    });
+  }
+
+  static addBook(book) {
+    const books = Store.getBooks();
+
+    books.push(book);
+
+    localStorage.setItem("books", JSON.stringify(books));
+  }
+
+  static removeBook(isbn) {
+    const books = Store.getBooks();
+
+    books.forEach(function(book, index) {
+      if (bbok.isbn === isbn) {
+        books.splice(index, 1);
+      }
+    });
+
+    localStorage.setItem("books", JSON.stringify(books));
+  }
+}
+
 class UI {
   addBookToList(book) {
     const list = document.getElementById("book-list");
@@ -29,6 +73,7 @@ class UI {
     div.appendChild(document.createTextNode(message));
     //Get parent
     const container = document.querySelector(".container");
+    //Get form
     const form = document.querySelector("#book-form");
     //Insert alert
     container.insertBefore(div, form);
@@ -52,6 +97,9 @@ class UI {
   }
 }
 
+//DOM load event
+document.addEventListener("DOMContentLoaded", Store.displayBooks);
+
 //Add event listeners
 document.getElementById("book-form").addEventListener("submit", function(e) {
   //Get form values
@@ -73,6 +121,9 @@ document.getElementById("book-form").addEventListener("submit", function(e) {
     //Add book to the list
     ui.addBookToList(book);
 
+    //Add to local storage
+    Store.addBook(book);
+
     //Book added
     ui.showAlert("Book is added!", "success");
 
@@ -89,6 +140,9 @@ document.getElementById("book-list").addEventListener("click", function(e) {
   const ui = new UI();
 
   ui.deleteBook(e.target);
+
+  //Remove from the local storage
+  Store.removeBook(e.target.parentElement.previousElementSibling.textContent);
 
   //Show message after deleting
   ui.showAlert("Book removed!", "success");
